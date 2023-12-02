@@ -1,24 +1,45 @@
-import _ from "lodash/fp";
-import { test } from "./test.mjs";
-const f = (line) => {
-  const a = [
-    // Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-    _.split(": "),
-    _.last, // 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-    _.split("; "), // 3 green, 4 blue, 1 red
-    _.map(_.split(", ")), // 3 green
-    _.map(_.split(" ")), // [3, green]
-    _.map(
-      _.reduce(
-        (acc, [v, k]) => ({
-          ...acc,
-          [k]: +v,
-        }),
-        {}
-      )
-    ), // {green: 3}
-  ];
-  return _.flow(a)(line);
-};
+import { input } from "./input.mjs";
+// import { test } from "./test.mjs";
+import * as _ from "ramda";
 
-console.log(f(test.split("\n")[0]));
+const LIMITS = {
+  red: 12,
+  green: 13,
+  blue: 14,
+};
+const a = _.pipe(
+  _.split("\n"),
+  _.map((line) =>
+    _.pipe(
+      _.split(": "),
+      _.last,
+      _.split("; "),
+      _.map(
+        _.pipe(
+          _.split(", "),
+          _.map(_.pipe(_.split(" "), ([v, k]) => ({ [k]: +v }))),
+          _.mergeAll,
+        ),
+      ),
+      _.all(
+        _.pipe(
+          Object.entries,
+          _.map(([k, v]) => v <= LIMITS[k]),
+          _.all((b) => b),
+        ),
+      ),
+    )(line)
+      ? _.pipe(
+          _.split(": "),
+          _.reverse,
+          _.last,
+          _.split(" "),
+          _.last,
+          Number,
+        )(line)
+      : 0,
+  ),
+  _.sum,
+);
+
+console.log(a(input));
