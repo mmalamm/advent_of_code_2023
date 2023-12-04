@@ -1,45 +1,44 @@
 import { input } from "./input.mjs";
-// import { test } from "./test.mjs";
-import * as _ from "ramda";
+import * as R from "ramda";
 
 const LIMITS = {
   red: 12,
   green: 13,
   blue: 14,
 };
-const a = _.pipe(
-  _.split("\n"),
-  _.map((line) =>
-    _.pipe(
-      _.split(": "),
-      _.last,
-      _.split("; "),
-      _.map(
-        _.pipe(
-          _.split(", "),
-          _.map(_.pipe(_.split(" "), ([v, k]) => ({ [k]: +v }))),
-          _.mergeAll,
+const a = R.pipe(
+  R.split("\n"),
+  R.map((line) =>
+    R.pipe(
+      R.split(": "),
+      R.last,
+      R.split("; "),
+      R.map(
+        R.pipe(
+          R.split(", "),
+          R.map(R.pipe(R.split(" "), ([v, k]) => ({ [k]: +v }))),
+          R.mergeAll,
         ),
       ),
-      _.all(
-        _.pipe(
+      R.all(
+        R.pipe(
           Object.entries,
-          _.map(([k, v]) => v <= LIMITS[k]),
-          _.all((b) => b),
+          R.map(([k, v]) => v <= LIMITS[k]),
+          R.all((b) => b),
         ),
       ),
     )(line)
-      ? _.pipe(
-          _.split(": "),
-          _.reverse,
-          _.last,
-          _.split(" "),
-          _.last,
+      ? R.pipe(
+          R.split(": "),
+          R.reverse,
+          R.last,
+          R.split(" "),
+          R.last,
           Number,
         )(line)
       : 0,
   ),
-  _.sum,
+  R.sum,
 );
 
 console.log(a(input));
